@@ -1,12 +1,11 @@
-// server.go
 package main
 
 import (
 	"io"
 	"log"
 	"net"
-
-	pb "path_to_your_protos" // Import the generated protobuf code
+    "time"
+	pb "github.com/Rakesh678219/dataTransferFromClient/protos/chunker" // Import the generated protobuf code
 
 	"google.golang.org/grpc"
 )
@@ -15,17 +14,23 @@ const (
     port = ":50051"
 )
 
-type server struct{}
+type server struct{
+    pb.UnimplementedFileServiceServer
+}
 
 func (s *server) UploadFile(stream pb.FileService_UploadFileServer) error {
     // Create a buffer to hold the file data
     var data []byte
-
+    // Record the start time
+     startTime := time.Now()
     for {
         chunk, err := stream.Recv()
         if err == io.EOF {
             // File transmission is complete
             log.Println("File transmission complete")
+            // Calculate the time taken
+            duration := time.Since(startTime)
+            log.Printf("Time taken: %s\n", duration)
             // Process the file data, e.g., save it to disk
             // Example: ioutil.WriteFile("uploaded_file.txt", data, 0644)
             return stream.SendAndClose(&pb.UploadResponse{Success: true, Message: "File uploaded successfully"})
@@ -38,7 +43,10 @@ func (s *server) UploadFile(stream pb.FileService_UploadFileServer) error {
     }
 }
 
+
+
 func main() {
+ 
     lis, err := net.Listen("tcp", port)
     if err != nil {
         log.Fatalf("failed to listen: %v", err)

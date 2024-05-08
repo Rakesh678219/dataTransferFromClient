@@ -7,7 +7,7 @@ import (
 	"log"
 	"os"
 
-	pb "path_to_your_protos" // Import the generated protobuf code
+	pb "github.com/Rakesh678219/dataTransferFromClient/protos/chunker" // Import the generated protobuf code
 
 	"google.golang.org/grpc"
 )
@@ -26,7 +26,7 @@ func main() {
     c := pb.NewFileServiceClient(conn)
 
     // Open the file to upload
-    file, err := os.Open("file_to_upload.txt")
+    file, err := os.Open("/root/1gb.test")
     if err != nil {
         log.Fatalf("failed to open file: %v", err)
     }
