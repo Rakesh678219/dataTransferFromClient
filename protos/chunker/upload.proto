@@ -11,6 +11,8 @@ service FileService {
 
 message FileChunk {
     bytes chunk = 1;
+    string app = 2;
+    string filename = 3;
 }
 
 message UploadResponse {
