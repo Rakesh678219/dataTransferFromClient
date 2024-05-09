@@ -1,9 +1,8 @@
-module github.com/Rakesh678219/dataTransferFromClient/v2
+module github.com/Rakesh678219/dataTransferFromClient
 
 go 1.22.2
 
 require (
-	github.com/Rakesh678219/dataTransferFromClient v0.0.0-20240509140254-e31ae6ee3007
 	google.golang.org/grpc v1.63.2
 	google.golang.org/protobuf v1.34.1
 )

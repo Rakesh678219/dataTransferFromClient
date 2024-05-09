@@ -1,5 +1,3 @@
-github.com/Rakesh678219/dataTransferFromClient v0.0.0-20240509140254-e31ae6ee3007 h1:h8o7ZeYfNt80rmPibUgH7MVkgL71ZQHDeHQBOZtIX2A=
-github.com/Rakesh678219/dataTransferFromClient v0.0.0-20240509140254-e31ae6ee3007/go.mod h1:3z6r17hDHam9qPAnhE5dpSE4wQGVkW+1eAn9bUKD3vw=
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 golang.org/x/net v0.21.0 h1:AQyQV4dYCvJ7vGmJyKki9+PBdyvhkSd8EIx/qb0AYv4=
