@@ -9,6 +9,7 @@ require (
 
 require (
 	github.com/golang/protobuf v1.5.4
+	github.com/gorilla/mux v1.8.1
 	github.com/johanbrandhorst/chunker v0.0.0-20170714194927-8de18b4abcf5
 	golang.org/x/net v0.21.0 // indirect
 	golang.org/x/sys v0.17.0 // indirect
