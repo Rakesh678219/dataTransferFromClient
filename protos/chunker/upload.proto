@@ -11,8 +11,6 @@ service FileService {
 
 message FileChunk {
     bytes chunk = 1;
-    string fileName = 2;
-    string microserviceName = 3;
 }
 message UploadResponse {
     bool success = 1;
