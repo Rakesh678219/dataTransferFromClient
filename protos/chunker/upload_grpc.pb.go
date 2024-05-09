@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileServiceClient interface {
-	UploadFile(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error)
+	UploadFile(ctx context.Context, in *FileChunk, opts ...grpc.CallOption) (*UploadResponse, error)
 }
 
 type fileServiceClient struct {
@@ -33,7 +33,7 @@ func NewFileServiceClient(cc grpc.ClientConnInterface) FileServiceClient {
 	return &fileServiceClient{cc}
 }
 
-func (c *fileServiceClient) UploadFile(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error) {
+func (c *fileServiceClient) UploadFile(ctx context.Context, in *FileChunk, opts ...grpc.CallOption) (*UploadResponse, error) {
 	out := new(UploadResponse)
 	err := c.cc.Invoke(ctx, "/chunker.FileService/UploadFile", in, out, opts...)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *fileServiceClient) UploadFile(ctx context.Context, in *UploadRequest, o
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility
 type FileServiceServer interface {
-	UploadFile(context.Context, *UploadRequest) (*UploadResponse, error)
+	UploadFile(context.Context, *FileChunk) (*UploadResponse, error)
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -54,7 +54,7 @@ type FileServiceServer interface {
 type UnimplementedFileServiceServer struct {
 }
 
-func (UnimplementedFileServiceServer) UploadFile(context.Context, *UploadRequest) (*UploadResponse, error) {
+func (UnimplementedFileServiceServer) UploadFile(context.Context, *FileChunk) (*UploadResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
@@ -71,7 +71,7 @@ func RegisterFileServiceServer(s grpc.ServiceRegistrar, srv FileServiceServer) {
 }
 
 func _FileService_UploadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UploadRequest)
+	in := new(FileChunk)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func _FileService_UploadFile_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/chunker.FileService/UploadFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FileServiceServer).UploadFile(ctx, req.(*UploadRequest))
+		return srv.(FileServiceServer).UploadFile(ctx, req.(*FileChunk))
 	}
 	return interceptor(ctx, in, info, handler)
 }

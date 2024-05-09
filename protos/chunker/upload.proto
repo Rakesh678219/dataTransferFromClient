@@ -6,17 +6,13 @@ package chunker;
 option go_package = "github.com/Rakesh678219/dataTransferFromClient/protos/chunker";
 
 service FileService {
-    rpc UploadFile(UploadRequest) returns (UploadResponse);
+    rpc UploadFile(FileChunk) returns (UploadResponse);
 }
 
 message FileChunk {
     bytes chunk = 1;
     string fileName = 2;
-}
-message UploadRequest {
-    string microserviceName = 1;
-    string fileName = 2;
-    bytes chunk = 3;
+    string microserviceName = 3;
 }
 message UploadResponse {
     bool success = 1;
