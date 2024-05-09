@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileServiceClient interface {
-	UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadFileClient, error)
+	UploadFile(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error)
 }
 
 type fileServiceClient struct {
@@ -33,45 +33,20 @@ func NewFileServiceClient(cc grpc.ClientConnInterface) FileServiceClient {
 	return &fileServiceClient{cc}
 }
 
-func (c *fileServiceClient) UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadFileClient, error) {
-	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[0], "/chunker.FileService/UploadFile", opts...)
+func (c *fileServiceClient) UploadFile(ctx context.Context, in *UploadRequest, opts ...grpc.CallOption) (*UploadResponse, error) {
+	out := new(UploadResponse)
+	err := c.cc.Invoke(ctx, "/chunker.FileService/UploadFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &fileServiceUploadFileClient{stream}
-	return x, nil
-}
-
-type FileService_UploadFileClient interface {
-	Send(*FileChunk) error
-	CloseAndRecv() (*UploadResponse, error)
-	grpc.ClientStream
-}
-
-type fileServiceUploadFileClient struct {
-	grpc.ClientStream
-}
-
-func (x *fileServiceUploadFileClient) Send(m *FileChunk) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *fileServiceUploadFileClient) CloseAndRecv() (*UploadResponse, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(UploadResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // FileServiceServer is the server API for FileService service.
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility
 type FileServiceServer interface {
-	UploadFile(FileService_UploadFileServer) error
+	UploadFile(context.Context, *UploadRequest) (*UploadResponse, error)
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -79,8 +54,8 @@ type FileServiceServer interface {
 type UnimplementedFileServiceServer struct {
 }
 
-func (UnimplementedFileServiceServer) UploadFile(FileService_UploadFileServer) error {
-	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
+func (UnimplementedFileServiceServer) UploadFile(context.Context, *UploadRequest) (*UploadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
 
@@ -95,30 +70,22 @@ func RegisterFileServiceServer(s grpc.ServiceRegistrar, srv FileServiceServer) {
 	s.RegisterService(&FileService_ServiceDesc, srv)
 }
 
-func _FileService_UploadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(FileServiceServer).UploadFile(&fileServiceUploadFileServer{stream})
-}
-
-type FileService_UploadFileServer interface {
-	SendAndClose(*UploadResponse) error
-	Recv() (*FileChunk, error)
-	grpc.ServerStream
-}
-
-type fileServiceUploadFileServer struct {
-	grpc.ServerStream
-}
-
-func (x *fileServiceUploadFileServer) SendAndClose(m *UploadResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *fileServiceUploadFileServer) Recv() (*FileChunk, error) {
-	m := new(FileChunk)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _FileService_UploadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UploadRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(FileServiceServer).UploadFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/chunker.FileService/UploadFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FileServiceServer).UploadFile(ctx, req.(*UploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // FileService_ServiceDesc is the grpc.ServiceDesc for FileService service.
@@ -127,13 +94,12 @@ func (x *fileServiceUploadFileServer) Recv() (*FileChunk, error) {
 var FileService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "chunker.FileService",
 	HandlerType: (*FileServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
+	Methods: []grpc.MethodDesc{
 		{
-			StreamName:    "UploadFile",
-			Handler:       _FileService_UploadFile_Handler,
-			ClientStreams: true,
+			MethodName: "UploadFile",
+			Handler:    _FileService_UploadFile_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "upload.proto",
 }
