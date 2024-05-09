@@ -4,9 +4,7 @@ import (
 	"io"
 	"log"
 	"net"
-	"os"
-	"time"
-
+    "time"
 	pb "github.com/Rakesh678219/dataTransferFromClient/protos/chunker" // Import the generated protobuf code
 
 	"google.golang.org/grpc"
@@ -33,29 +31,15 @@ func (s *server) UploadFile(stream pb.FileService_UploadFileServer) error {
             // Calculate the time taken
             duration := time.Since(startTime)
             log.Printf("Time taken: %s\n", duration)
-            file, err := os.Create("/root/output_file.txt")
-                if err != nil {
-                    log.Println("error in creating file")
-                    return nil
-                }
-
-                defer file.Close()
-
-                // Write some data to the file
-                _, err = file.Write(data)
-                if err != nil {
-                     log.Println("error in writing file")
-                    return nil
-                }
-
             // Process the file data, e.g., save it to disk
+            // Example: ioutil.WriteFile("uploaded_file.txt", data, 0644)
             return stream.SendAndClose(&pb.UploadResponse{Success: true, Message: "File uploaded successfully"})
         }
         if err != nil {
             return err
         }
         // Append the received chunk to the data buffer
-        data = append(data, chunk.Chunk...)   
+        data = append(data, chunk.Chunk...)
     }
 }
 

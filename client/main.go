@@ -26,7 +26,7 @@ func main() {
     c := pb.NewFileServiceClient(conn)
 
     // Open the file to upload
-    file, err := os.Open("/root/logs.txt")
+    file, err := os.Open("/root/1gb.test")
     if err != nil {
         log.Fatalf("failed to open file: %v", err)
     }
