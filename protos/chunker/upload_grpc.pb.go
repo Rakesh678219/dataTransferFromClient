@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FileServiceClient interface {
 	UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadFileClient, error)
-	ReadFile(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadResponse, error)
+	ReadFile(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (FileService_ReadFileClient, error)
 }
 
 type fileServiceClient struct {
@@ -68,13 +68,36 @@ func (x *fileServiceUploadFileClient) CloseAndRecv() (*UploadResponse, error) {
 	return m, nil
 }
 
-func (c *fileServiceClient) ReadFile(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (*ReadResponse, error) {
-	out := new(ReadResponse)
-	err := c.cc.Invoke(ctx, "/chunker.FileService/ReadFile", in, out, opts...)
+func (c *fileServiceClient) ReadFile(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (FileService_ReadFileClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[1], "/chunker.FileService/ReadFile", opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &fileServiceReadFileClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FileService_ReadFileClient interface {
+	Recv() (*ReadResponse, error)
+	grpc.ClientStream
+}
+
+type fileServiceReadFileClient struct {
+	grpc.ClientStream
+}
+
+func (x *fileServiceReadFileClient) Recv() (*ReadResponse, error) {
+	m := new(ReadResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // FileServiceServer is the server API for FileService service.
@@ -82,7 +105,7 @@ func (c *fileServiceClient) ReadFile(ctx context.Context, in *ReadRequest, opts 
 // for forward compatibility
 type FileServiceServer interface {
 	UploadFile(FileService_UploadFileServer) error
-	ReadFile(context.Context, *ReadRequest) (*ReadResponse, error)
+	ReadFile(*ReadRequest, FileService_ReadFileServer) error
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -93,8 +116,8 @@ type UnimplementedFileServiceServer struct {
 func (UnimplementedFileServiceServer) UploadFile(FileService_UploadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method UploadFile not implemented")
 }
-func (UnimplementedFileServiceServer) ReadFile(context.Context, *ReadRequest) (*ReadResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method ReadFile not implemented")
+func (UnimplementedFileServiceServer) ReadFile(*ReadRequest, FileService_ReadFileServer) error {
+	return status.Errorf(codes.Unimplemented, "method ReadFile not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
 
@@ -135,22 +158,25 @@ func (x *fileServiceUploadFileServer) Recv() (*FileChunk, error) {
 	return m, nil
 }
 
-func _FileService_ReadFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ReadRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _FileService_ReadFile_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ReadRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(FileServiceServer).ReadFile(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/chunker.FileService/ReadFile",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(FileServiceServer).ReadFile(ctx, req.(*ReadRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(FileServiceServer).ReadFile(m, &fileServiceReadFileServer{stream})
+}
+
+type FileService_ReadFileServer interface {
+	Send(*ReadResponse) error
+	grpc.ServerStream
+}
+
+type fileServiceReadFileServer struct {
+	grpc.ServerStream
+}
+
+func (x *fileServiceReadFileServer) Send(m *ReadResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // FileService_ServiceDesc is the grpc.ServiceDesc for FileService service.
@@ -159,17 +185,17 @@ func _FileService_ReadFile_Handler(srv interface{}, ctx context.Context, dec fun
 var FileService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "chunker.FileService",
 	HandlerType: (*FileServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "ReadFile",
-			Handler:    _FileService_ReadFile_Handler,
-		},
-	},
+	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "UploadFile",
 			Handler:       _FileService_UploadFile_Handler,
 			ClientStreams: true,
+		},
+		{
+			StreamName:    "ReadFile",
+			Handler:       _FileService_ReadFile_Handler,
+			ServerStreams: true,
 		},
 	},
 	Metadata: "upload.proto",

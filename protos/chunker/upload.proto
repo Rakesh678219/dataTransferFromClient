@@ -7,7 +7,7 @@ option go_package = "github.com/Rakesh678219/dataTransferFromClient/protos/chunk
 
 service FileService {
     rpc UploadFile(stream FileChunk) returns (UploadResponse);
-    rpc ReadFile (ReadRequest) returns (ReadResponse);
+    rpc ReadFile (ReadRequest) returns (stream ReadResponse);
 }
 
 message FileChunk {
