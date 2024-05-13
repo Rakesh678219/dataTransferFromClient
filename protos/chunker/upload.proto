@@ -14,6 +14,7 @@ message FileChunk {
     bytes chunk = 1;
     string app = 2;
     string filename = 3;
+    string fileFormat = 4; 
 }
 
 message UploadResponse {
@@ -22,7 +23,7 @@ message UploadResponse {
 }
 message ReadRequest{
     string application = 1;
-    string filename = 2;
+    string fileName = 2;
     string fromDate = 3;
     string toDate = 4;
 }
