@@ -10,7 +10,7 @@ service FileService {
     rpc ReadFile (ReadRequest) returns (stream ReadResponse);
 
     //Reports
-    rpc UploadReport(stream FileChunk) returns (UploadReportResponse);
+    rpc saveReport(stream UploadReport) returns (UploadReportResponse);
     rpc ReadReport (ReadReportRequest) returns (stream ReadReportResponse);
     rpc ListReport (ListReportRequest) returns (stream ListReportResponse);
 
