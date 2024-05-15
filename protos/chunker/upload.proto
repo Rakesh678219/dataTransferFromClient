@@ -32,6 +32,7 @@ message UploadReportResponse {
 
 message ReadReportRequest {
     string filename = 1;
+    string application = 2;
 }
 
 
