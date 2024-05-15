@@ -8,7 +8,44 @@ option go_package = "github.com/Rakesh678219/dataTransferFromClient/protos/chunk
 service FileService {
     rpc UploadFile(stream FileChunk) returns (UploadResponse);
     rpc ReadFile (ReadRequest) returns (stream ReadResponse);
+
+    //Reports
+    rpc UploadReport(stream FileChunk) returns (UploadReportResponse);
+    rpc ReadReport (ReadReportRequest) returns (stream ReadReportResponse);
+    rpc ListReport (ListReportRequest) returns (stream ListReportResponse);
+
 }
+
+
+//Reports
+message UploadReport {
+    bytes chunk = 1;
+    string app = 2;
+    string filename = 3;
+    string createdby = 4; 
+}
+
+message UploadReportResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message ReadReportRequest {
+    string filename = 1;
+}
+
+
+message ReadReportResponse{
+     bytes chunk = 1;
+}
+
+message ListReportRequest{
+
+}
+message ListReportResponse {
+    bytes chunk = 1;
+}
+//other files
 
 message FileChunk {
     bytes chunk = 1;

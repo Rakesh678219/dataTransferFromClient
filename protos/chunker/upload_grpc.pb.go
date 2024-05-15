@@ -24,6 +24,10 @@ const _ = grpc.SupportPackageIsVersion7
 type FileServiceClient interface {
 	UploadFile(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadFileClient, error)
 	ReadFile(ctx context.Context, in *ReadRequest, opts ...grpc.CallOption) (FileService_ReadFileClient, error)
+	//Reports
+	UploadReport(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadReportClient, error)
+	ReadReport(ctx context.Context, in *ReadReportRequest, opts ...grpc.CallOption) (FileService_ReadReportClient, error)
+	ListReport(ctx context.Context, in *ListReportRequest, opts ...grpc.CallOption) (FileService_ListReportClient, error)
 }
 
 type fileServiceClient struct {
@@ -100,12 +104,114 @@ func (x *fileServiceReadFileClient) Recv() (*ReadResponse, error) {
 	return m, nil
 }
 
+func (c *fileServiceClient) UploadReport(ctx context.Context, opts ...grpc.CallOption) (FileService_UploadReportClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[2], "/chunker.FileService/UploadReport", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &fileServiceUploadReportClient{stream}
+	return x, nil
+}
+
+type FileService_UploadReportClient interface {
+	Send(*FileChunk) error
+	CloseAndRecv() (*UploadReportResponse, error)
+	grpc.ClientStream
+}
+
+type fileServiceUploadReportClient struct {
+	grpc.ClientStream
+}
+
+func (x *fileServiceUploadReportClient) Send(m *FileChunk) error {
+	return x.ClientStream.SendMsg(m)
+}
+
+func (x *fileServiceUploadReportClient) CloseAndRecv() (*UploadReportResponse, error) {
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	m := new(UploadReportResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *fileServiceClient) ReadReport(ctx context.Context, in *ReadReportRequest, opts ...grpc.CallOption) (FileService_ReadReportClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[3], "/chunker.FileService/ReadReport", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &fileServiceReadReportClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FileService_ReadReportClient interface {
+	Recv() (*ReadReportResponse, error)
+	grpc.ClientStream
+}
+
+type fileServiceReadReportClient struct {
+	grpc.ClientStream
+}
+
+func (x *fileServiceReadReportClient) Recv() (*ReadReportResponse, error) {
+	m := new(ReadReportResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func (c *fileServiceClient) ListReport(ctx context.Context, in *ListReportRequest, opts ...grpc.CallOption) (FileService_ListReportClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FileService_ServiceDesc.Streams[4], "/chunker.FileService/ListReport", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &fileServiceListReportClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FileService_ListReportClient interface {
+	Recv() (*ListReportResponse, error)
+	grpc.ClientStream
+}
+
+type fileServiceListReportClient struct {
+	grpc.ClientStream
+}
+
+func (x *fileServiceListReportClient) Recv() (*ListReportResponse, error) {
+	m := new(ListReportResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // FileServiceServer is the server API for FileService service.
 // All implementations must embed UnimplementedFileServiceServer
 // for forward compatibility
 type FileServiceServer interface {
 	UploadFile(FileService_UploadFileServer) error
 	ReadFile(*ReadRequest, FileService_ReadFileServer) error
+	//Reports
+	UploadReport(FileService_UploadReportServer) error
+	ReadReport(*ReadReportRequest, FileService_ReadReportServer) error
+	ListReport(*ListReportRequest, FileService_ListReportServer) error
 	mustEmbedUnimplementedFileServiceServer()
 }
 
@@ -118,6 +224,15 @@ func (UnimplementedFileServiceServer) UploadFile(FileService_UploadFileServer) e
 }
 func (UnimplementedFileServiceServer) ReadFile(*ReadRequest, FileService_ReadFileServer) error {
 	return status.Errorf(codes.Unimplemented, "method ReadFile not implemented")
+}
+func (UnimplementedFileServiceServer) UploadReport(FileService_UploadReportServer) error {
+	return status.Errorf(codes.Unimplemented, "method UploadReport not implemented")
+}
+func (UnimplementedFileServiceServer) ReadReport(*ReadReportRequest, FileService_ReadReportServer) error {
+	return status.Errorf(codes.Unimplemented, "method ReadReport not implemented")
+}
+func (UnimplementedFileServiceServer) ListReport(*ListReportRequest, FileService_ListReportServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListReport not implemented")
 }
 func (UnimplementedFileServiceServer) mustEmbedUnimplementedFileServiceServer() {}
 
@@ -179,6 +294,74 @@ func (x *fileServiceReadFileServer) Send(m *ReadResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _FileService_UploadReport_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(FileServiceServer).UploadReport(&fileServiceUploadReportServer{stream})
+}
+
+type FileService_UploadReportServer interface {
+	SendAndClose(*UploadReportResponse) error
+	Recv() (*FileChunk, error)
+	grpc.ServerStream
+}
+
+type fileServiceUploadReportServer struct {
+	grpc.ServerStream
+}
+
+func (x *fileServiceUploadReportServer) SendAndClose(m *UploadReportResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func (x *fileServiceUploadReportServer) Recv() (*FileChunk, error) {
+	m := new(FileChunk)
+	if err := x.ServerStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+func _FileService_ReadReport_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ReadReportRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FileServiceServer).ReadReport(m, &fileServiceReadReportServer{stream})
+}
+
+type FileService_ReadReportServer interface {
+	Send(*ReadReportResponse) error
+	grpc.ServerStream
+}
+
+type fileServiceReadReportServer struct {
+	grpc.ServerStream
+}
+
+func (x *fileServiceReadReportServer) Send(m *ReadReportResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
+func _FileService_ListReport_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ListReportRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FileServiceServer).ListReport(m, &fileServiceListReportServer{stream})
+}
+
+type FileService_ListReportServer interface {
+	Send(*ListReportResponse) error
+	grpc.ServerStream
+}
+
+type fileServiceListReportServer struct {
+	grpc.ServerStream
+}
+
+func (x *fileServiceListReportServer) Send(m *ListReportResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // FileService_ServiceDesc is the grpc.ServiceDesc for FileService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -195,6 +378,21 @@ var FileService_ServiceDesc = grpc.ServiceDesc{
 		{
 			StreamName:    "ReadFile",
 			Handler:       _FileService_ReadFile_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "UploadReport",
+			Handler:       _FileService_UploadReport_Handler,
+			ClientStreams: true,
+		},
+		{
+			StreamName:    "ReadReport",
+			Handler:       _FileService_ReadReport_Handler,
+			ServerStreams: true,
+		},
+		{
+			StreamName:    "ListReport",
+			Handler:       _FileService_ListReport_Handler,
 			ServerStreams: true,
 		},
 	},
