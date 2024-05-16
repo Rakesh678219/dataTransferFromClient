@@ -6,7 +6,7 @@
 # major="${version_parts[0]}"
 # minor="${version_parts[1]}"
 # new_minor=$((minor + 1))
-NEW_VERSION="v1.22.0"
+NEW_VERSION="v1.23.0"
 
 # Commit changes
 git add .
@@ -21,4 +21,8 @@ git push origin $NEW_VERSION
 go mod tidy
 
 # Verify module version availability
-GOPROXY=proxy.golang.org go list -m github.com/Rakesh678219/dataTransferFromClient@$NEW_VERSION
+if GOPROXY=proxy.golang.org go list -m github.com/Rakesh678219/dataTransferFromClient@$NEW_VERSION &> /dev/null; then
+    echo "Module version $NEW_VERSION is available."
+else
+    echo "Module version $NEW_VERSION is not available."
+fi
