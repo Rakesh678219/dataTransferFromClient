@@ -1,37 +1,24 @@
 #!/bin/bash
 
-# Step 1: Code changes
-# Make your desired changes to the code
+# Increment the version number
+# CURRENT_VERSION=$(git tag --sort=-v:refname | head -n 1)
+# IFS='.' read -r -a version_parts <<< "$CURRENT_VERSION"
+# major="${version_parts[0]}"
+# minor="${version_parts[1]}"
+# new_minor=$((minor + 1))
+NEW_VERSION="v1.21.0"
 
-# Step 2: Versioning
-VERSION=$(TZ=Asia/Kolkata date +"%Y-%m-%d-%H-%M")
-echo "Version: $VERSION"
-
-# Step 3: Commit changes
-echo "Committing changes..."
+# Commit changes
 git add .
-git commit -m "Changes for version $VERSION"
-echo "Changes committed successfully."
+git commit -m "Version $NEW_VERSION"
+git tag $NEW_VERSION
 
-# Step 4: Tagging
-echo "Tagging commit with version v-$VERSION..."
-git tag v-$VERSION
-echo "Tag created successfully."
-
-# Step 5: Push commits and tags
-echo "Pushing commits to remote repository..."
+# Push commits and tags
 git push origin main
-echo "Commits pushed successfully."
+git push origin $NEW_VERSION
 
-echo "Pushing tags to remote repository..."
-git push origin v-$VERSION
-echo "Tags pushed successfully."
-
-# Step 6: Ensure Go module integrity
-echo "Ensuring Go module integrity..."
+# Ensure Go module integrity
 go mod tidy
-echo "Go module integrity ensured."
 
-# Step 7: Verify module version availability
-echo "Verifying module version availability..."
-GOPROXY=proxy.golang.org go list -m github.com/Rakesh678219/dataTransferFromClient@v$VERSION
+# Verify module version availability
+GOPROXY=proxy.golang.org go list -m github.com/Rakesh678219/dataTransferFromClient@$NEW_VERSION
