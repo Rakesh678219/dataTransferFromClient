@@ -2,7 +2,7 @@
 
 # Increment the version number
 # CURRENT_VERSION=$(git tag --sort=-v:refname | head -n 1)
-# IFS='.' read -r -a version_parts <<< "$CURRENT_VERSION"
+# IFS='.' read -r -a version_parts <<< "$(echo "$CURRENT_VERSION")"
 # major="${version_parts[0]}"
 # minor="${version_parts[1]}"
 # new_minor=$((minor + 1))
