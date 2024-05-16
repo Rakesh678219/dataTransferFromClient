@@ -31,3 +31,7 @@ echo "Tags pushed successfully."
 echo "Ensuring Go module integrity..."
 go mod tidy
 echo "Go module integrity ensured."
+
+# Step 7: Verify module version availability
+echo "Verifying module version availability..."
+GOPROXY=proxy.golang.org go list -m github.com/Rakesh678219/dataTransferFromClient@v$VERSION
