@@ -6,7 +6,7 @@
 # major="${version_parts[0]}"
 # minor="${version_parts[1]}"
 # new_minor=$((minor + 1))
-NEW_VERSION="v1.21.0"
+NEW_VERSION="v1.22.0"
 
 # Commit changes
 git add .
