@@ -2,6 +2,7 @@
 syntax = "proto3";
 
 package chunker;
+import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/Rakesh678219/dataTransferFromClient/protos/chunker";
 
@@ -40,11 +41,16 @@ message ReadReportResponse{
      bytes chunk = 1;
 }
 
+message FileMetadata {
+    string filename = 1;
+    google.protobuf.Timestamp createdAt = 2;
+    google.protobuf.Timestamp modifiedAt = 3;
+}
 message ListReportRequest{
 
 }
 message ListReportResponse {
-    bytes chunk = 1;
+    repeated FileMetadata files = 1;
 }
 //other files
 
