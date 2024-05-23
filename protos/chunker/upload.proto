@@ -2,77 +2,118 @@
 syntax = "proto3";
 
 package chunker;
-import "google/protobuf/timestamp.proto";
+// import "google/protobuf/timestamp.proto";
 
 option go_package = "github.com/Rakesh678219/dataTransferFromClient/protos/chunker";
 
-service FileService {
-    rpc UploadFile(stream FileChunk) returns (UploadResponse);
-    rpc ReadFile (ReadRequest) returns (stream ReadResponse);
+// service FileService {
+//     rpc UploadFile(stream FileChunk) returns (UploadResponse);
+//     rpc ReadFile (ReadRequest) returns (stream ReadResponse);
 
-    //Reports
-    rpc saveReport(stream UploadReport) returns (UploadReportResponse);
-    rpc ReadReport (ReadReportRequest) returns (stream ReadReportResponse);
-    rpc ListReport (ListReportRequest) returns (stream ListReportResponse);
+//     //Reports
+//     rpc saveReport(stream UploadReport) returns (UploadReportResponse);
+//     rpc ReadReport (ReadReportRequest) returns (stream ReadReportResponse);
+//     rpc ListReport (ListReportRequest) returns (stream ListReportResponse);
 
+// }
+
+
+// //Reports
+// message UploadReport {
+//     bytes chunk = 1;
+//     string app = 2;
+//     string filename = 3;
+//     string createdby = 4; 
+// }
+
+// message UploadReportResponse {
+//     bool success = 1;
+//     string message = 2;
+// }
+
+// message ReadReportRequest {
+//     string filename = 1;
+//     string application = 2;
+// }
+
+
+// message ReadReportResponse{
+//      bytes chunk = 1;
+// }
+
+// message FileMetadata {
+//     string filename = 1;
+//     google.protobuf.Timestamp createdAt = 2;
+//     google.protobuf.Timestamp modifiedAt = 3;
+//     string created_by = 4;
+// }
+// message ListReportRequest{
+
+// }
+// message ListReportResponse {
+//     repeated FileMetadata files = 1;
+// }
+// //other files
+
+// message FileChunk {
+//     bytes chunk = 1;
+//     string app = 2;
+//     string filename = 3;
+//     string fileFormat = 4; 
+// }
+
+// message UploadResponse {
+//     bool success = 1;
+//     string message = 2;
+// }
+// message ReadRequest{
+//     string application = 1;
+//     string fileName = 2;
+//     string fromDate = 3;
+//     string toDate = 4;
+// }
+
+// message ReadResponse{
+//      bytes chunk = 1;
+// }
+
+
+
+message UploadRequest {
+  // Client has to send object attributes in the first stream,
+  // subsequent streams will be sent with object chunks.
+  oneof upload_request {
+    // Attributes of object
+    FileAttributes metadata = 1;
+
+    // Chunk of object content
+    // Default max chunk size in gRPC is 4MB, so chunk size must be less than 4 MB.
+    bytes chunk = 2;
+  }
 }
 
+message FileAttributes {
+  // Name of the file.
+  string name = 1;
 
-//Reports
-message UploadReport {
-    bytes chunk = 1;
-    string app = 2;
-    string filename = 3;
-    string createdby = 4; 
+  // CRC32c checksum.
+  string crc32c = 2;
+
+  // MD5 hash of the data; encoded using base64.
+  string md5Hash = 3;
+
+  // User-provided metadata, in key/value pairs.
+  repeated Metadata metadata = 4;
+
+  // Size in bytes of object to upload.
+  int64 size = 5;
+
+  // Name of the bucket, if not provided, object will be stored in the default bucket.
+  string bucket_name = 6;
 }
 
-message UploadReportResponse {
-    bool success = 1;
-    string message = 2;
-}
-
-message ReadReportRequest {
-    string filename = 1;
-    string application = 2;
-}
-
-
-message ReadReportResponse{
-     bytes chunk = 1;
-}
-
-message FileMetadata {
-    string filename = 1;
-    google.protobuf.Timestamp createdAt = 2;
-    google.protobuf.Timestamp modifiedAt = 3;
-    string created_by = 4;
-}
-message ListReportRequest{
-
-}
-message ListReportResponse {
-    repeated FileMetadata files = 1;
-}
-//other files
-
-message FileChunk {
-    bytes chunk = 1;
-    string app = 2;
-    string filename = 3;
-    string fileFormat = 4; 
-}
-
-message UploadResponse {
-    bool success = 1;
-    string message = 2;
-}
-message ReadRequest{
-    string application = 1;
-    string fileName = 2;
-    string fromDate = 3;
-    string toDate = 4;
-}
-
-message ReadResponse{
-     bytes chunk = 1;
+// Generic key-value metadata definition.
+message Metadata {
+  string key = 1;
+  string value = 2;
 }
