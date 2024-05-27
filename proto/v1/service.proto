@@ -193,12 +193,12 @@ service StorageService {
 	// }
 
 	// // List returns all the objects having required prefix. 
-	// rpc List(ListRequest) returns (ListResponse) {
-	// 	option (google.api.http) = {
-	// 		post: "/storage/v1/list"
-	// 		body: "*"
-	// 	  };
-	// }
+	rpc List(ListRequest) returns (ListResponse) {
+		// option (google.api.http) = {
+		// 	post: "/storage/v1/list"
+		// 	body: "*"
+		//   };
+	}
 
 	// // CreateBucket is used to create a new bucket in object storage
 	// rpc CreateBucket(CreateBucketRequest) returns (CreateBucketResponse) {
