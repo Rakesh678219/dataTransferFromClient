@@ -26,6 +26,8 @@ type StorageServiceClient interface {
 	Upload(ctx context.Context, opts ...grpc.CallOption) (StorageService_UploadClient, error)
 	// Download is used to download an object from object storage.
 	Download(ctx context.Context, in *DownloadRequest, opts ...grpc.CallOption) (StorageService_DownloadClient, error)
+	// // List returns all the objects having required prefix.
+	List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error)
 }
 
 type storageServiceClient struct {
@@ -102,6 +104,15 @@ func (x *storageServiceDownloadClient) Recv() (*DownloadResponse, error) {
 	return m, nil
 }
 
+func (c *storageServiceClient) List(ctx context.Context, in *ListRequest, opts ...grpc.CallOption) (*ListResponse, error) {
+	out := new(ListResponse)
+	err := c.cc.Invoke(ctx, "/storage.v1.StorageService/List", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StorageServiceServer is the server API for StorageService service.
 // All implementations must embed UnimplementedStorageServiceServer
 // for forward compatibility
@@ -110,6 +121,8 @@ type StorageServiceServer interface {
 	Upload(StorageService_UploadServer) error
 	// Download is used to download an object from object storage.
 	Download(*DownloadRequest, StorageService_DownloadServer) error
+	// // List returns all the objects having required prefix.
+	List(context.Context, *ListRequest) (*ListResponse, error)
 	mustEmbedUnimplementedStorageServiceServer()
 }
 
@@ -122,6 +135,9 @@ func (UnimplementedStorageServiceServer) Upload(StorageService_UploadServer) err
 }
 func (UnimplementedStorageServiceServer) Download(*DownloadRequest, StorageService_DownloadServer) error {
 	return status.Errorf(codes.Unimplemented, "method Download not implemented")
+}
+func (UnimplementedStorageServiceServer) List(context.Context, *ListRequest) (*ListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method List not implemented")
 }
 func (UnimplementedStorageServiceServer) mustEmbedUnimplementedStorageServiceServer() {}
 
@@ -183,13 +199,36 @@ func (x *storageServiceDownloadServer) Send(m *DownloadResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
+func _StorageService_List_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StorageServiceServer).List(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/storage.v1.StorageService/List",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StorageServiceServer).List(ctx, req.(*ListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StorageService_ServiceDesc is the grpc.ServiceDesc for StorageService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var StorageService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "storage.v1.StorageService",
 	HandlerType: (*StorageServiceServer)(nil),
-	Methods:     []grpc.MethodDesc{},
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "List",
+			Handler:    _StorageService_List_Handler,
+		},
+	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "Upload",
