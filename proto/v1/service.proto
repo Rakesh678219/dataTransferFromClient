@@ -164,33 +164,33 @@ service StorageService {
 
 	// Delete is used to delete an object from object storage.
 	// If the specified object doesn't exist in the bucket, the method returns without throwing any error
-	// rpc Delete(DeleteRequest) returns (DeleteResponse) {
-	// 	option (google.api.http) = {
-	// 		delete : "/storage/v1/object/{file_id}"
-	// 	};
-	// }
+	rpc Delete(DeleteRequest) returns (DeleteResponse) {
+		// option (google.api.http) = {
+		// 	delete : "/storage/v1/object/{file_id}"
+		// };
+	}
 
-	// rpc DeleteV2(DeleteRequest) returns (DeleteResponse) {
-	// 	option (google.api.http) = {
-	// 		post : "/storage/v2/object/{file_id}"
-	// 		body : "*"
-	// 	};
-	// }
+	rpc DeleteV2(DeleteRequest) returns (DeleteResponse) {
+		// option (google.api.http) = {
+		// 	post : "/storage/v2/object/{file_id}"
+		// 	body : "*"
+		// };
+	}
 
-	// rpc DeleteDirectory(DeleteDirectoryRequest) returns (DeleteResponse) {
-	// 	option (google.api.http) = {
-	// 		post : "/storage/v1/delete"
-	// 		body : "*"
-	// 	};
-	// }
+	rpc DeleteDirectory(DeleteDirectoryRequest) returns (DeleteResponse) {
+		// option (google.api.http) = {
+		// 	post : "/storage/v1/delete"
+		// 	body : "*"
+		// };
+	}
 
 	// // SignedURL is used to get signed download url from storage service.
-	// rpc SignedURL(SignedURLRequest) returns (SignedURLResponse) {
-	// 	option (google.api.http) = {
-	// 		post : "/storage/v1/signedurl"
-	// 		body : "*"
-	// 	  };
-	// }
+	rpc SignedURL(SignedURLRequest) returns (SignedURLResponse) {
+		// option (google.api.http) = {
+		// 	post : "/storage/v1/signedurl"
+		// 	body : "*"
+		//   };
+	}
 
 	// // List returns all the objects having required prefix. 
 	rpc List(ListRequest) returns (ListResponse) {
